@@ -1,0 +1,5 @@
+steps:
+  - name: "docker"
+    args:
+      ["-t", "gcr.io/$PROJECT_ID/auth", "-f", "./docker/auth.Dockerfile", "."]
+images: ["gcr.io/$PROJECT_ID/auth"]
