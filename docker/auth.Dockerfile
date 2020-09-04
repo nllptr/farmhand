@@ -8,5 +8,5 @@ RUN go build ./cmd/auth
 
 FROM alpine:latest  
 WORKDIR /root/
-COPY --from=builder /builder/auth .
+COPY --from=builder /build/auth .
 CMD ["./app"]  
