@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: ./docker/auth.Dockerfile
+    image: auth:dev
+    # The environment variables are read from the file ".env" in
+    # the project root folder. That file should not be commited
+    # to source control.
+    environment:
+      - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
+      - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
+      - HOST=${HOST}
+    ports:
+      - "8080:8080"
