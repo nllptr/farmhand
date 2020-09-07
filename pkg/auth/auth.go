@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"math/rand"
@@ -78,20 +79,27 @@ func randStateString() string {
 	return b64State
 }
 
-// // CreateVerifyJWTMiddleware verifies that the JWT is present and valid, then adds the subject field to the request context.
-// func (c OIDCClient) CreateVerifyJWTMiddleware(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		split := strings.Split(r.Header.Get("Authorization"), "Bearer ")
-// 		if len(split) != 2 {
-// 			http.Error(w, "Malformed Authorization header", http.StatusUnauthorized)
-// 			return
-// 		}
-// 		idToken, err := c.provider.Verifier(c.oidcConfig).Verify(c.ctx, split[1])
-// 		if err != nil {
-// 			http.Error(w, "Invalid access token", http.StatusUnauthorized)
-// 			return
-// 		}
-// 		ctx := context.WithValue(r.Context(), KeyUserID, idToken.Subject)
-// 		next.ServeHTTP(w, r.WithContext(ctx))
-// 	})
-// }
+type key int
+
+const (
+	// KeyUserID is used for adding/retriving the user ID to/from the request context.
+	KeyUserID key = iota
+)
+
+// CreateVerifyJWTMiddleware verifies that the JWT is present and valid, then adds the subject field to the request context.
+func CreateVerifyJWTMiddleware(next http.Handler, p *oidc.Provider, c *oidc.Config) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		split := strings.Split(r.Header.Get("Authorization"), "Bearer ")
+		if len(split) != 2 {
+			http.Error(w, "Malformed Authorization header", http.StatusUnauthorized)
+			return
+		}
+		idToken, err := p.Verifier(c).Verify(r.Context(), split[1])
+		if err != nil {
+			http.Error(w, "Invalid access token", http.StatusUnauthorized)
+			return
+		}
+		ctx := context.WithValue(r.Context(), KeyUserID, idToken.Subject)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}

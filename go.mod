@@ -3,6 +3,7 @@ module github.com/nllptr/farmhand
 go 1.15
 
 require (
+	cloud.google.com/go/firestore v1.3.0
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.3.0
