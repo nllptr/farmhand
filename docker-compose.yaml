@@ -11,6 +11,15 @@ services:
     environment:
       - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
-      - HOST=${HOST}
+      - AUTH_REDIRECT_URL=http://localhost:8080/auth/callback
+    ports:
+      - "8080:8080"
+  settings:
+    build:
+      context: .
+      dockerfile: ./docker/settings.Dockerfile
+    image: settings:dev
+    environment:
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
     ports:
       - "8080:8080"

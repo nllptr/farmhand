@@ -12,4 +12,4 @@ RUN CGO_ENABLED=0 GOOS=linux go build ./cmd/auth
 FROM alpine:latest  
 WORKDIR /root/
 COPY --from=builder /build/auth .
-CMD ["./auth"]  
+CMD ["./auth"]

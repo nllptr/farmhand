@@ -17,7 +17,7 @@ import (
 const (
 	AuthClientID     = "AUTH_CLIENT_ID"
 	AuthClientSecret = "AUTH_CLIENT_SECRET"
-	Host             = "HOST"
+	AuthRedirectURL  = "AUTH_REDIRECT_URL"
 )
 
 func main() {
@@ -31,9 +31,9 @@ func main() {
 		if !ok {
 			log.Fatal("environment variable AUTH_CLIENT_SECRET not set")
 		}
-		_, ok = os.LookupEnv(Host)
+		_, ok = os.LookupEnv(AuthRedirectURL)
 		if !ok {
-			log.Fatal("environment variable HOST not set")
+			log.Fatal("environment variable AUTH_RECIRECT_URL not set")
 		}
 	}
 	ctx := context.Background()
@@ -44,7 +44,7 @@ func main() {
 	config := &oauth2.Config{
 		ClientID:     os.Getenv(AuthClientID),
 		ClientSecret: os.Getenv(AuthClientSecret),
-		RedirectURL:  os.Getenv(Host) + "/auth/callback",
+		RedirectURL:  os.Getenv(AuthRedirectURL),
 		Endpoint:     provider.Endpoint(),
 		// "openid" is a required scope for OpenID Connect flows.
 		Scopes: []string{oidc.ScopeOpenID, "profile", "email"},
