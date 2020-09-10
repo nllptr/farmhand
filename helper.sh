@@ -44,6 +44,12 @@ case $subcommand in
     --timeout=90s
     echo "✅ Ingress controller installed\n"
 
+    echo "Patching validation webhook..."
+    # The ingress admission validator needs to be updated with the correct service path. I suspect this has to do
+    # with k8s 1.16 deprecations
+    kubectl patch validatingwebhookconfigurations.admissionregistration.k8s.io ingress-nginx-admission -p '{"webhooks": [{"name": "validate.nginx.ingress.kubernetes.io", "clientConfig": {"service": {"path": "/networking.k8s.io/v1beta1/ingresses"}}}]}'
+    echo "✅ Validating webhook patched\n"
+
     echo "Creating secrets..."
     clientId=$(awk '/AUTH_CLIENT_ID/{split($0, arr, "="); print arr[2]}' .env)
     echo $clientId
@@ -61,11 +67,7 @@ case $subcommand in
     kind load docker-image settings:dev
     echo "✅ Docker images loaded\n"
 
-    echo "Patching validation webhook..."
-    # The ingress admission validator needs to be updated with the correct service path. I suspect this has to do
-    # with k8s 1.16 deprecations
-    kubectl patch validatingwebhookconfigurations.admissionregistration.k8s.io ingress-nginx-admission -p '{"webhooks": [{"name": "validate.nginx.ingress.kubernetes.io", "clientConfig": {"service": {"path": "/networking.k8s.io/v1beta1/ingresses"}}}]}'
-    echo "✅ Validating webhook patched\n"
+    echo "🎉 Everything is done, but you probably need to wait a minute or two, before the admission controller patch takes effect. 🎉"
     ;;
   build)
     echo "Building docker images..."
