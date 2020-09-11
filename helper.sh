@@ -104,6 +104,7 @@ case $subcommand in
       echo "Namespace 'farmhand-dev' already exists"
     else
       kubectl create namespace farmhand-dev
+      kubectl config set-context --current --namespace=farmhand-dev
     fi
     kubectl apply -k ./k8s/dev
     echo "✅ K8s specifications applied\n"
@@ -112,7 +113,8 @@ case $subcommand in
     echo "Deleting k8s resources..."
     if kubectl get namespaces farmhand-dev &> /dev/null
     then
-      kubectl delete all --all -n farmhand-dev
+      kubectl delete namespaces farmhand-dev
+      kubectl config set-context --current --namespace=default
       echo "✅ K8s resources deleted\n"
     else
       echo "K8s namespace 'farmhand-dev' did not exist"
@@ -120,6 +122,6 @@ case $subcommand in
     ;;
   *)
     echo "You need to enter a valid sub command. Valid sub commands are:"
-    echo "pre\nsetup\nbuild\nload\nsecrets\napply"
+    echo "pre\nsetup\nbuild\nload\nsecrets\napply\ndelete"
     ;;
 esac
