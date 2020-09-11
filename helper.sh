@@ -29,14 +29,6 @@ case $subcommand in
     else
       echo "❌ Kubectl not found. Make sure it is installed. https://kubernetes.io/docs/tasks/tools/install-kubectl/"
     fi
-
-    # Check for kustomize
-    if command -v kustomize &> /dev/null
-    then
-      echo "✅ Kustomize"
-    else
-      echo "❌ Kustomize not found. Make sure it is installed. https://kubernetes-sigs.github.io/kustomize/installation/"
-    fi
     ;;
   setup)
     echo "Setting up environment...\n"
@@ -57,14 +49,6 @@ case $subcommand in
     # with k8s 1.16 deprecations
     kubectl patch validatingwebhookconfigurations.admissionregistration.k8s.io ingress-nginx-admission -p '{"webhooks": [{"name": "validate.nginx.ingress.kubernetes.io", "clientConfig": {"service": {"path": "/networking.k8s.io/v1beta1/ingresses"}}}]}'
     echo "✅ Validating webhook patched\n"
-
-    # echo "Creating secrets..."
-    # clientId=$(awk '/AUTH_CLIENT_ID/{split($0, arr, "="); print arr[2]}' .env)
-    # echo $clientId
-    # clientSecret=$(awk '/AUTH_CLIENT_SECRET/{split($0, arr, "="); print arr[2]}' .env)
-    # echo $clientSecret
-    # kubectl create secret generic auth --from-literal=clientID=$clientId --from-literal=clientSecret=$clientSecret
-    # echo "✅ Secrets created\n"
 
     echo "Building docker images..."
     docker-compose build
