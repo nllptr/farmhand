@@ -20,4 +20,5 @@ Farmhand is a web service that enables a hobby farmer (such as myself) to better
 Run `./helper.sh` without any arguments, or check the file directly to see what else the script can do.
 
 # TODO
-Generate skeleton .env file
+- Generate skeleton .env file
+- Convert the helper script to a cross-platform go program.
