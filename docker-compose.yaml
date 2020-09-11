@@ -9,7 +9,7 @@ services:
     # the project root folder. That file should not be commited
     # to source control.
     env_file:
-      - ./k8s/dev/auth.env
+      - ./k8s/dev/auth-secrets.env
     environment:
       - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}

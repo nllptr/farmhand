@@ -33,7 +33,7 @@ case $subcommand in
     # Check for kustomize
     if command -v kustomize &> /dev/null
     then
-      echo "✅ Kubectl"
+      echo "✅ Kustomize"
     else
       echo "❌ Kustomize not found. Make sure it is installed. https://kubernetes-sigs.github.io/kustomize/installation/"
     fi
@@ -99,8 +99,24 @@ case $subcommand in
     ;;
   apply)
     echo "Applying k8s specifications..."
+    if kubectl get namespaces farmhand-dev &> /dev/null
+    then
+      echo "Namespace 'farmhand-dev' already exists"
+    else
+      kubectl create namespace farmhand-dev
+    fi
     kubectl apply -k ./k8s/dev
     echo "✅ K8s specifications applied\n"
+    ;;
+  delete)
+    echo "Deleting k8s resources..."
+    if kubectl get namespaces farmhand-dev &> /dev/null
+    then
+      kubectl delete all --all -n farmhand-dev
+      echo "✅ K8s resources deleted\n"
+    else
+      echo "K8s namespace 'farmhand-dev' did not exist"
+    fi
     ;;
   *)
     echo "You need to enter a valid sub command. Valid sub commands are:"

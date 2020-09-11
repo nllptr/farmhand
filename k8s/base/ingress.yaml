@@ -4,6 +4,8 @@ metadata:
   name: farmhand-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
+  labels:
+    app: farmhand
 spec:
   rules:
     - host: localhost
