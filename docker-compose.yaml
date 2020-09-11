@@ -8,6 +8,8 @@ services:
     # The environment variables are read from the file ".env" in
     # the project root folder. That file should not be commited
     # to source control.
+    env_file:
+      - ./k8s/dev/auth.env
     environment:
       - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
@@ -22,4 +24,4 @@ services:
     environment:
       - GCP_PROJECT_ID=${GCP_PROJECT_ID}
     ports:
-      - "8080:8080"
+      - "8081:8080"
