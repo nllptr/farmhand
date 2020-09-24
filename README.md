@@ -14,10 +14,9 @@ Farmhand is a web service that enables a hobby farmer (such as myself) to better
 ## Running locally on a Kind cluster
 
 1. Run `./helper.sh pre` to make sure your environment fulfills the prerequisites.
-2. Run `./helper.sh setup` to create the cluster, build images and deploy.
-3. Run `./helper.sh apply` to apply the k8s specifications to the cluster. `./helper.sh delete` deletes them.
-
-Run `./helper.sh` without any arguments, or check the file directly to see what else the script can do.
+2. Run `./helper.sh setup` to create the cluster.
+3. Run `skaffold run` to build the images.
+4. Run `skaffold dev` to deploy all services to the cluster.
 
 # TODO
 - Generate skeleton .env file

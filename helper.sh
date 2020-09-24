@@ -29,6 +29,14 @@ case $subcommand in
     else
       echo "❌ Kubectl not found. Make sure it is installed. https://kubernetes.io/docs/tasks/tools/install-kubectl/"
     fi
+
+    # Check for skaffold
+    if command -v skaffold &> /dev/null
+    then
+      echo "✅ Skaffold"
+    else
+      echo "❌ Skaffold not found. Make sure it is installed. https://skaffold.dev/docs/install/"
+    fi
     ;;
   setup)
     echo "Setting up environment...\n"
@@ -43,69 +51,10 @@ case $subcommand in
     --selector=app.kubernetes.io/component=controller \
     --timeout=90s
     echo "✅ Ingress controller installed\n"
+    ;;
 
-    echo "Patching validation webhook..."
-    # The ingress admission validator needs to be updated with the correct service path. I suspect this has to do
-    # with k8s 1.16 deprecations
-    kubectl patch validatingwebhookconfigurations.admissionregistration.k8s.io ingress-nginx-admission -p '{"webhooks": [{"name": "validate.nginx.ingress.kubernetes.io", "clientConfig": {"service": {"path": "/networking.k8s.io/v1beta1/ingresses"}}}]}'
-    echo "✅ Validating webhook patched\n"
-
-    echo "Building docker images..."
-    docker-compose build
-    echo "✅ Docker images built\n"
-    
-    echo "Loading docker images into cluster..."
-    kind load docker-image auth:dev
-    kind load docker-image settings:dev
-    echo "✅ Docker images loaded\n"
-
-    echo "🎉 Everything is done, but you probably need to wait a minute or two, before the admission controller patch takes effect. 🎉"
-    ;;
-  build)
-    echo "Building docker images..."
-    docker-compose build
-    echo "✅ Docker images built\n"
-    ;;
-  load)
-    echo "Loading docker images into cluster..."
-    kind load docker-image auth:dev
-    kind load docker-image settings:dev
-    echo "✅ Docker images loaded\n"
-    ;;
-  secrets)
-    echo "Creating secrets..."
-    clientId=$(awk '/AUTH_CLIENT_ID/{split($0, arr, "="); print arr[2]}' .env)
-    echo $clientId
-    clientSecret=$(awk '/AUTH_CLIENT_SECRET/{split($0, arr, "="); print arr[2]}' .env)
-    echo $clientSecret
-    kubectl create secret generic auth --from-literal=clientID=$clientId --from-literal=clientSecret=$clientSecret
-    echo "✅ Secrets created\n"
-    ;;
-  apply)
-    echo "Applying k8s specifications..."
-    if kubectl get namespaces farmhand-dev &> /dev/null
-    then
-      echo "Namespace 'farmhand-dev' already exists"
-    else
-      kubectl create namespace farmhand-dev
-      kubectl config set-context --current --namespace=farmhand-dev
-    fi
-    kubectl apply -k ./k8s/dev
-    echo "✅ K8s specifications applied\n"
-    ;;
-  delete)
-    echo "Deleting k8s resources..."
-    if kubectl get namespaces farmhand-dev &> /dev/null
-    then
-      kubectl delete namespaces farmhand-dev
-      kubectl config set-context --current --namespace=default
-      echo "✅ K8s resources deleted\n"
-    else
-      echo "K8s namespace 'farmhand-dev' did not exist"
-    fi
-    ;;
   *)
     echo "You need to enter a valid sub command. Valid sub commands are:"
-    echo "pre\nsetup\nbuild\nload\nsecrets\napply\ndelete"
+    echo "pre\nsetup"
     ;;
 esac

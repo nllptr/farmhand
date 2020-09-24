@@ -1,0 +1,20 @@
+apiVersion: skaffold/v2beta7
+kind: Config
+metadata:
+  name: farmhand
+build:
+  artifacts:
+    - image: auth
+      context: .
+      docker:
+        dockerfile: docker/auth.Dockerfile
+deploy:
+  kustomize:
+    paths:
+      - k8s/dev
+profiles:
+  - name: base
+    deploy:
+      kustomize:
+        paths:
+          - k8s/base

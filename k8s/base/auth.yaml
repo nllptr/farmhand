@@ -3,12 +3,12 @@ kind: Service
 metadata:
   name: auth-service
   labels:
-    app: farmhand
+    app: auth
 spec:
   ports:
     - port: 8080
   selector:
-    app: farmhand
+    app: auth
 
 ---
 apiVersion: apps/v1
@@ -16,16 +16,16 @@ kind: Deployment
 metadata:
   name: auth-deployment
   labels:
-    app: farmhand
+    app: auth
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: farmhand
+      app: auth
   template:
     metadata:
       labels:
-        app: farmhand
+        app: auth
     spec:
       containers:
         - name: auth
