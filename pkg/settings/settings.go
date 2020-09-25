@@ -7,6 +7,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/nllptr/farmhand/pkg/auth"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // UserSettings holds the settings for a user
@@ -22,22 +23,23 @@ type UserSettings struct {
 }
 
 // CreateGetSettings creates a GetSettings handler
-func CreateGetSettings(client *firestore.Client) http.HandlerFunc {
+func CreateGetSettings(client *mongo.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sub := getUserID(w, r)
+		fmt.Fprintf(w, "sub: %v\n", sub)
 
-		dsnap, err := client.Collection("users").Doc(sub).Get(r.Context())
-		if err != nil {
-			http.Error(w, "Firestore error", http.StatusInternalServerError)
-			fmt.Printf("Firestore error: %v", err)
-			return
-		}
-		var settings UserSettings
-		dsnap.DataTo(&settings)
+		// dsnap, err := client.Collection("users").Doc(sub).Get(r.Context())
+		// if err != nil {
+		// 	http.Error(w, "Firestore error", http.StatusInternalServerError)
+		// 	fmt.Printf("Firestore error: %v", err)
+		// 	return
+		// }
+		// var settings UserSettings
+		// dsnap.DataTo(&settings)
 		// settings.Username = dsnap.Ref.ID
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(settings)
+		// json.NewEncoder(w).Encode(settings)
 	}
 }
 

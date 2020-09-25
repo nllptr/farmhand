@@ -8,6 +8,10 @@ build:
       context: .
       docker:
         dockerfile: docker/auth.Dockerfile
+    - image: settings
+      context: .
+      docker:
+        dockerfile: docker/settings.Dockerfile
 deploy:
   kustomize:
     paths:

@@ -13,8 +13,12 @@ configMapGenerator:
   - name: auth
     literals:
       - AUTH_REDIRECT_URL=http://localhost/auth/callback
+      - MONGODB_URI=mongodb://farmhand_user:farmhand_password@mongodb-service:27017/?authSource=farmhand&readPreference=primary&appname=settings-service&ssl=false
   - name: mongo
     literals:
       - MONGODB_USERNAME=farmhand_user
       - MONGODB_PASSWORD=farmhand_password
       - MONGODB_DATABASE=farmhand
+  - name: settings
+    literals:
+      - MONGODB_URI=mongodb://farmhand_user:farmhand_password@mongodb-service:27017/?authSource=farmhand&readPreference=primary&appname=settings-service&ssl=false

@@ -9,23 +9,33 @@ import (
 	"strings"
 
 	"github.com/coreos/go-oidc"
+	"github.com/nllptr/farmhand/pkg/db"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/oauth2"
 )
+
+// TODO: This entire file needs an overhaul once work on the frontend has started.
 
 // CreateRedirect returns a handler function that redirects to OpenID Connect
 func CreateRedirect(c *oauth2.Config) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		// TODO: The state variable should come from the browser client.
+		// Should the final check also somehow be in the browser?
+
 		state := randStateString()
 		http.SetCookie(w, &http.Cookie{
 			Name:  "state",
 			Value: state,
 		})
+
 		http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
 	}
 }
 
 // CreateCallback returns a handler function that verifies an OIDC token.
-func CreateCallback(p *oidc.Provider, c *oauth2.Config) func(w http.ResponseWriter, r *http.Request) {
+func CreateCallback(p *oidc.Provider, c *oauth2.Config, d *mongo.Database) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stateCookie, err := r.Cookie("state")
 		if err != nil {
@@ -55,13 +65,34 @@ func CreateCallback(p *oidc.Provider, c *oauth2.Config) func(w http.ResponseWrit
 		oidcConfig := &oidc.Config{
 			ClientID: c.ClientID,
 		}
-		_, err = p.Verifier(oidcConfig).Verify(r.Context(), rawIDToken)
+		idToken, err := p.Verifier(oidcConfig).Verify(r.Context(), rawIDToken)
 		if err != nil {
 			http.Error(w, "Token validation failed: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		var claims struct {
+			Email   string `json:"email"`
+			Name    string `json:"name"`
+			Subject string `json:"sub"`
+		}
+		err = idToken.Claims(&claims)
+		if err != nil {
+			http.Error(w, "Claims retreival failed:"+err.Error(), http.StatusInternalServerError)
+		}
 
-		fmt.Fprintf(w, "%v", rawIDToken)
+		user := db.User{}
+
+		err = d.Collection("users").FindOne(r.Context(), bson.M{"sub": claims.Subject}).Decode(&user)
+		if err != mongo.ErrNilDocument {
+			// register
+			http.Error(w, "find user:"+err.Error(), http.StatusInternalServerError)
+		}
+		if err != nil {
+			// other error
+		}
+
+		fmt.Fprintf(w, "%v", claims)
+		fmt.Fprintf(w, "rawIDToken: %v", rawIDToken)
 	}
 }
 

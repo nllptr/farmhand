@@ -2,29 +2,44 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"cloud.google.com/go/firestore"
 	"github.com/gorilla/mux"
 	"github.com/nllptr/farmhand/pkg/settings"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// GCPProjectID environment variable constant
-const GCPProjectID = "GCP_PROJECT_ID"
+// MongoDBURI environment variable constant
+const mongodbURI = "MONGODB_URI"
 
 func main() {
-	_, ok := os.LookupEnv(GCPProjectID)
+
+	uri, ok := os.LookupEnv(mongodbURI)
 	if !ok {
-		log.Fatal("environment variable GCP_PROJECT_ID not set")
+		log.Fatal("environment variable MONGODB_URI not set")
 	}
 	ctx := context.Background()
-	client, err := firestore.NewClient(ctx, os.Getenv(GCPProjectID))
-	defer client.Close()
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	if err != nil {
-		log.Fatal("failed to create Firestore client:", err)
+		log.Fatal(err)
 	}
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	databases, err := client.ListDatabaseNames(ctx, bson.D{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("databases: %v\n", databases)
 
 	r := mux.NewRouter()
 

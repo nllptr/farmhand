@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: settings-service
+  labels:
+    app: settings
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: settings
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: settings-deployment
+  labels:
+    app: settings
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: settings
+  template:
+    metadata:
+      labels:
+        app: settings
+    spec:
+      containers:
+        - name: settings
+          image: settings:dev
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:
+            - name: MONGODB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: settings
+                  key: MONGODB_URI
