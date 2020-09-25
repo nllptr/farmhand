@@ -53,5 +53,5 @@ spec:
             - name: AUTH_REDIRECT_URL
               valueFrom:
                 configMapKeyRef:
-                  name: properties
+                  name: auth
                   key: AUTH_REDIRECT_URL
